@@ -2,7 +2,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Tools, ToolsDocument } from './Tools.schema';
+import { Tools, ToolsDocument } from './tools.schema';
 
 
 export class CreateToolsDto {
