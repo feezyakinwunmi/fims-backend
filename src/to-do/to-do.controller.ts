@@ -2,7 +2,6 @@
 import { Controller, Get, Post,Patch,Request, Body, Query, Req, Param, Delete, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './to-do.service';
 import { TodoService } from './to-do.service';
-import { User } from '../auth/schemas/user.schema';
 import { Types } from 'mongoose';
 import { UpdateTodoStatusDto } from './to-do.service';
 
