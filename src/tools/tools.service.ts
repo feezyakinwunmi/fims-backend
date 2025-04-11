@@ -1,5 +1,5 @@
 // src/Toolss/Toolss.service.ts
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Tools, ToolsDocument } from './tools.schema';
@@ -10,6 +10,13 @@ export class CreateToolsDto {
   readonly quantity: number;
   readonly price: number;
   readonly userId: string; // Explicit user association
+}
+export class UpdateToolsDto {
+  readonly quantity?: number;
+  readonly currentStock?: number;
+  readonly price?: number;
+  readonly totalSales?: number;
+  readonly totalPurchases?: number;
 }
 @Injectable()
 export class ToolsService {
@@ -42,4 +49,44 @@ export class ToolsService {
      });
      return newTools.save();
    }
+
+
+   
+     async updateTools(
+       toolsId: string,
+       updateData: UpdateToolsDto,
+      //  userId: string
+     ): Promise<ToolsDocument> {
+       // Validate IDs
+       if (!Types.ObjectId.isValid(toolsId) ) {
+         throw new BadRequestException('Invalid ID format');
+       }
+   
+       const objectId = new Types.ObjectId(toolsId);
+      //  const userObjectId = new Types.ObjectId(userId);
+   
+       // Find and update the crop
+       const updatedTools = await this.toolsModel.findOneAndUpdate(
+         {
+           _id: objectId,
+          //  userId: userObjectId // Ensure user owns this crop
+         },
+         {
+           ...updateData,
+           updatedAt: new Date()
+         },
+         {
+           new: true, // Return the updated document
+           runValidators: true // Run schema validators on update
+         }
+       );
+   
+       if (!updatedTools) {
+         throw new NotFoundException('Crop not found or you dont have permission');
+       }
+   
+       return updatedTools;
+     }
+   
+   
  }

@@ -1,10 +1,11 @@
 // src/crops/crops.controller.ts
-import { Controller, Get, Post, Body, Query, Req, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query,Patch,Param,Req, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Request } from 'express';
 import { CreateCropDto } from './crops.service';
 import { CropsService } from './crops.service';
 import { User } from '../auth/schemas/user.schema';
+import { UpdateCropDto } from './crops.service'; 
 
 
 @Controller('crops')
@@ -45,9 +46,33 @@ async getItemsByCategory(
   const crops = await this.cropsService.findAllByUserAndCategory(userId);
 
   // Check if crops were found
-  if (crops.length === 0) {
-    throw new NotFoundException('No crops found for this user');
-  }
+  // if (crops.length === 0) {
+  //   throw new NotFoundException('No crops found for this user');
+  // }
 
   return crops;
-}}
+}
+
+@Patch(':id')
+  async updateCrop(
+    @Param('id') cropId: string,
+    @Body() updateData: UpdateCropDto,
+    // @Query('userId') userId: string
+  ) {
+    // if (!userId) {
+    //   throw new BadRequestException('User ID is required');
+    // }
+
+    const updatedCrop = await this.cropsService.updateCrop(
+      cropId,
+      updateData,
+      // userId
+    );
+
+    return {
+      message: 'Crop updated successfully',
+      data: updatedCrop
+    };
+  }
+
+}

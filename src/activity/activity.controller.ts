@@ -25,6 +25,8 @@ export class ActivityController {
        data: activity
      };
    }
+
+   
   
    // items.controller.ts
  @Get()
@@ -44,9 +46,9 @@ export class ActivityController {
    const activity = await this.activityService.findAllByUserAndCategory(userId);
  
    // Check if Activitys were found
-   if (activity.length === 0) {
-     throw new NotFoundException('No Activitys found for this user');
-   }
+  //  if (activity.length === 0) {
+  //    throw new NotFoundException('No Activitys found for this user');
+  //  }
  
    return activity;
  }

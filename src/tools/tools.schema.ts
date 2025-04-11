@@ -14,11 +14,24 @@ export class Tools {
   @Prop({ required: false })
   price: number;
 
+  @Prop({ default: 0 })
+  totalSales: number;
+
+  @Prop({ default: 0 })
+  totalPurchases: number;
+
    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
    userId: Types.ObjectId; // Link items to the logged-in user
  
    @Prop({ default: Date.now })
    createdAt: Date;
+
+   @Prop({ default: 0 })
+   currentStock: number;
+
+   
+     @Prop({ default: Date.now })
+     updatedAt: Date;
 }
 
 // Export the ToolsDocument type

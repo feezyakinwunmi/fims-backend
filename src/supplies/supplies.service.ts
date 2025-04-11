@@ -1,5 +1,5 @@
 // src/Suppliess/Suppliess.service.ts
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Supplies, SuppliesDocument } from './supplies.schema';
@@ -10,6 +10,13 @@ export class CreateSuppliesDto {
   readonly quantity: number;
   readonly price: number;
   readonly userId: string; // Explicit user association
+}
+export class UpdateSuppliesDto {
+  readonly quantity?: number;
+  readonly currentStock?: number;
+  readonly price?: number;
+  readonly totalSales?: number;
+  readonly totalPurchases?: number;
 }
 @Injectable()
 export class SuppliesService {
@@ -32,6 +39,18 @@ async findAllByUserAndCategory(userId: string): Promise<SuppliesDocument[]> {
   return supplies;
 }
   
+// NEW METHOD: Find single supply by ID
+async findOne(_id: string): Promise<SuppliesDocument> {
+  if (!Types.ObjectId.isValid(_id)) {
+    throw new BadRequestException('Invalid supply ID format');
+  }
+
+  const supply = await this.suppliesModel.findById(_id).exec();
+  if (!supply) {
+    throw new NotFoundException('Supply not found');
+  }
+  return supply;
+}
 
 
   async create(createSuppliesDto: CreateSuppliesDto, userId: string): Promise<Supplies> {
@@ -41,5 +60,34 @@ async findAllByUserAndCategory(userId: string): Promise<SuppliesDocument[]> {
       createdAt: new Date()
     });
     return newSupplies.save();
+  }
+
+  async updateSupplies(
+    supplyId: string,
+    updateData: UpdateSuppliesDto
+  ): Promise<SuppliesDocument> {
+    if (!Types.ObjectId.isValid(supplyId)) {
+      throw new BadRequestException('Invalid ID format');
+    }
+
+    const objectId = new Types.ObjectId(supplyId);
+
+    const updatedSupply = await this.suppliesModel.findOneAndUpdate(
+      { _id: objectId },
+      {
+        ...updateData,
+        updatedAt: new Date()
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!updatedSupply) {
+      throw new NotFoundException('Supply not found');
+    }
+
+    return updatedSupply;
   }
 }

@@ -22,6 +22,12 @@ export class Todo {
  
    @Prop({ default: Date.now })
    createdAt: Date;
+
+   @Prop({ default: 0 })
+   currentStock: number;
+ 
+   @Prop({ default: Date.now })
+   updatedAt: Date;
 }
 
 // Export the CropDocument type

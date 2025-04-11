@@ -1,7 +1,7 @@
 
 
 // src/auth/auth.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SignupDto } from './dto/signup.dto';
@@ -10,32 +10,42 @@ import { User, UserDocument } from './schemas/user.schema';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { ConflictException } from '@nestjs/common';
+import { Types } from 'mongoose';
+
 
 @Injectable()
 export class AuthService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  // Sign Up Method
   async signup(signupDto: SignupDto): Promise<UserDocument> {
-    const existingUser = await this.userModel.findOne({ email: signupDto.email });
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
+    try {
+      // Check for existing user
+      const existingUser = await this.userModel.findOne({ 
+        $or: [
+          { email: signupDto.email },
+          { phone: signupDto.phone }
+        ]
+      });
+      
+      if (existingUser) {
+        throw new ConflictException('Email or phone already exists');
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+
+      // Create user - using create() instead of new + save()
+      const user = await this.userModel.create({
+        ...signupDto,
+        password: hashedPassword,
+        phone: signupDto.phone.toString() // Ensure phone is string
+      });
+
+      return user;
+    } catch (error) {
+      console.error('Signup Error:', error);
+      throw new InternalServerErrorException('Registration failed');
     }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
-
-    // Create a new user
-    const newUser = new this.userModel({
-      email: signupDto.email,
-      password: hashedPassword,
-      firstName: signupDto.firstName,
-      lastName: signupDto.lastName,
-      farmName: signupDto.farmName,
-      phone: signupDto.phone,
-    });
-
-    return newUser.save();
   }
 
   // Login Method
@@ -61,8 +71,11 @@ export class AuthService {
     };
   }
   // src/auth/auth.service.ts
-async findUserById(userId: string): Promise<UserDocument | null> {
-  return this.userModel.findById(userId).select('-password').exec(); // Exclude password for security
-}
+  async findUserById(id: string): Promise<UserDocument | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+    return this.userModel.findById(id).select('-password -__v').exec();
+  }
 
 }

@@ -14,6 +14,7 @@ import { ActivityService } from './activity/activity.service';
 import { ActivityController } from './activity/activity.controller';
 import { ActivityModule } from './activity/activity.module';
 import { TodoModule } from './to-do/to-do.module';
+import { ItemsActivityModule } from './itemsActivity/itemsActivity.module';
 
 
 
@@ -28,7 +29,7 @@ dotenv.config();
     SuppliesModule,
     ActivityModule,
     TodoModule,
-
+    ItemsActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService,

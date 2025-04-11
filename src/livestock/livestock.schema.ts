@@ -19,6 +19,19 @@ export class Livestock {
  
    @Prop({ default: Date.now })
    createdAt: Date;
+
+     @Prop({ default: 0 })
+     totalSales: number;
+   
+     @Prop({ default: 0 })
+     totalPurchases: number;
+   
+
+ @Prop({ default: 0 })
+  currentStock: number;
+
+  @Prop({ default: Date.now })
+  updatedAt: Date;
 }
 
 // Export the LivestockDocument type

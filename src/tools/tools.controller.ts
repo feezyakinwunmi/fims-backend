@@ -1,8 +1,9 @@
 // src/tools/tools.controller.ts
-import { Controller, Get, Post, Body, Query, Req, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query,Param,Patch, Req, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ToolsService } from './tools.service';
 import { CreateToolsDto } from './tools.service';
 import { Types } from 'mongoose';
+import { UpdateToolsDto } from './tools.service';
 
 
 @Controller('tools')
@@ -24,6 +25,28 @@ export class ToolsController {
       data: tool
     };
   }
+
+  @Patch(':id')
+    async updateCrop(
+      @Param('id') cropId: string,
+      @Body() updateData: UpdateToolsDto,
+      // @Query('userId') userId: string
+    ) {
+      // if (!userId) {
+      //   throw new BadRequestException('User ID is required');
+      // }
+  
+      const updatedTools = await this.ToolsService.updateTools(
+        cropId,
+        updateData,
+        // userId
+      );
+  
+      return {
+        message: 'Crop updated successfully',
+        data: updatedTools
+      };
+    }
  
   // items.controller.ts
 @Get()
@@ -43,9 +66,9 @@ async getItemsByCategory(
   const tools = await this.ToolsService.findAllByUserAndCategory(userId);
 
   // Check if Tools were found
-  if (tools.length === 0) {
-    throw new NotFoundException('No Tools found for this user');
-  }
+  // if (tools.length === 0) {
+  //   throw new NotFoundException('No Tools found for this user');
+  // }
 
   return tools;
 }}
